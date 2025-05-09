@@ -1,0 +1,35 @@
+name: build-page-with-doc
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-jekyll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout pypose/pypose.github.io
+      - uses: ruby/setup-ruby@v1
+        name: Setup Ruby
+        with:
+          # Automatically versioned with .ruby-version
+          bundler-cache: true
+      - uses: actions/setup-node@v3
+        name: Setup Node
+        with:
+          node-version: 9.8.0
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile --immutable # per suggestion of actions/setup-node
+        name: Setup Yarn
+      - run: make build
+        name: Build Jekyll site
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.2.3
+        with:
+          branch: gh-pages
+          folder: _site
+          clean: true
+          single-commit: true
